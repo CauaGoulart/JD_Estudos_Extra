@@ -4,7 +4,9 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'lazy', loadChildren: () => import('./lazy-page/lazy-page.module').then(m => m.LazyPageModule) },
+  { path: 'lazy2', loadChildren: () => import('./lazy-page2/lazy-page2.module').then(m => m.LazyPage2Module) },
 ];
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

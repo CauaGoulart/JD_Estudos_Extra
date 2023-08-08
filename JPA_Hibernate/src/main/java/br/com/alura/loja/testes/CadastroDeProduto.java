@@ -15,14 +15,20 @@ import br.com.alura.loja.util.JPAUtil;
 public class CadastroDeProduto {
 
 	public static void main(String[] args) {
+		EntityManager em = JPAUtil.getEntityManager();
 		boolean continuar = true;
 		Scanner scanner = new Scanner(System.in);
+		ProdutoDao produtoDao = new ProdutoDao(em);
 
 		while (continuar) {
+			System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 			System.out.println("Escolha uma opção:");
 			System.out.println("1 - Cadastrar produto");
 			System.out.println("2 - Listar produtos");
-			System.out.println("3 - Sair");
+			System.out.println("3 - Buscar por categoria");
+			System.out.println("4 - Pesquisar preço de produto");
+			System.out.println("6 - Sair");
+			System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 			System.out.print("Opção: ");
 
 			int opcao = scanner.nextInt();
@@ -35,8 +41,15 @@ public class CadastroDeProduto {
 				listarProdutos();
 				break;
 			case 3:
+				buscarPorCategoria(scanner, produtoDao);
+				break;
+			case 4:
+				buscarPrecoDoProduto(scanner, produtoDao);
+				break;
+			case 6:
 				continuar = false;
 				break;
+
 			default:
 				System.out.println("Opção inválida. Escolha novamente.");
 			}
@@ -45,20 +58,16 @@ public class CadastroDeProduto {
 		scanner.close();
 	}
 
-//	List<Produto> todos = produtoDao.buscarPorNomeDaCategoria("CELULARES");
-//	todos.forEach(p2 -> System.out.println(p.getNome()));
-//
-//	BigDecimal precoDoProduto = produtoDao.buscarPrecoDoProdutoComNome("Xiaomi Redmi");
-//	System.out.println("Preco do Produto: " + precoDoProduto);
-
 	private static void listarProdutos() {
 		EntityManager em = JPAUtil.getEntityManager();
 		ProdutoDao produtoDao = new ProdutoDao(em);
 		List<Produto> todosProdutos = produtoDao.buscarTodos();
+		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 		for (Produto produto : todosProdutos) {
 			System.out.println(
 			"ID: " + produto.getId() + " | Nome: " + produto.getNome() + " | Preço: " + produto.getPreco());
 		}
+		System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvv");
 	}
 
 	private static void cadastrarProduto(Scanner scanner) {
@@ -90,6 +99,39 @@ public class CadastroDeProduto {
 		em.getTransaction().commit();
 		em.close();
 
+	}
+
+	private static void buscarPorCategoria(Scanner scanner, ProdutoDao produtoDao) {
+		scanner.nextLine();
+		System.out.print("Nome da categoria: ");
+		String nomeCategoria = scanner.nextLine().toUpperCase();
+
+		List<Produto> produtosPorCategoria = produtoDao.buscarPorNomeDaCategoria(nomeCategoria);
+
+		if (!produtosPorCategoria.isEmpty()) {
+			System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+			System.out.println("Produtos na categoria '" + nomeCategoria + "':");
+			produtosPorCategoria.forEach(produto -> System.out.println(produto.getNome()));
+			System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+		} else {
+			System.out.println("Nenhum produto encontrado na categoria '" + nomeCategoria + "'.");
+		}
+	}
+
+	private static void buscarPrecoDoProduto(Scanner scanner, ProdutoDao produtoDao) {
+		scanner.nextLine();
+		System.out.print("Nome do produto: ");
+		String nomeProduto = scanner.nextLine();
+
+		BigDecimal precoDoProduto = produtoDao.buscarPrecoDoProdutoComNome(nomeProduto);
+
+		if (precoDoProduto != null) {
+			System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+			System.out.println("Preço do Produto '" + nomeProduto + "': " + precoDoProduto);
+			System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+		} else {
+			System.out.println("Produto '" + nomeProduto + "' não encontrado.");
+		}
 	}
 
 }
